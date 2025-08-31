@@ -15,6 +15,8 @@ function Tickets() {
             Authorization: `Bearer ${token}`,
           },
         });
+        console.log(res.data);
+        
 
         setTickets(res.data || []);
       } catch (err) {

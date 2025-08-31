@@ -25,10 +25,16 @@ function SessionPage() {
           headers: { Authorization: `Bearer ${token}` }
         });
 
-        // ✅ Only tickets for this admin and active
+        console.log("All tickets:", ticketsRes.data);
+
+        // ✅ Only active tickets for this admin (use busName not busId)
         const activeTickets = ticketsRes.data.filter(
-          (t) => t.active && t.busId === adminRes.data._id
+          (t) =>
+            t.active &&
+            (t.busName === adminRes.data.username ||
+             t.busName === adminRes.data.busName)
         );
+
         console.log("Active tickets for this session:", activeTickets);
 
         setTickets(activeTickets);
@@ -44,13 +50,21 @@ function SessionPage() {
   }, []);
 
   const handleEndSession = async () => {
-  if (!admin) return;
+  if (!admin) {
+    console.error("❌ Admin is null, cannot close session.");
+    return;
+  }
+
+  const token = localStorage.getItem("adminToken");
+  if (!token) {
+    console.error("❌ No token found in localStorage.");
+    return;
+  }
+
+  console.log("🔑 Using token:", token);
+  console.log("👤 Admin ID for close-session:", admin._id);
 
   try {
-    const token = localStorage.getItem("adminToken");
-    if (!token) return;
-
-    // Call backend to close session and deactivate tickets
     const res = await axios.post(
       `http://localhost:5000/api/admin/${admin._id}/close-session`,
       {},
@@ -59,16 +73,16 @@ function SessionPage() {
       }
     );
 
-    console.log(res.data.message, "Modified tickets:", res.data.modifiedCount);
+    console.log("✅ Backend response:", res.data);
 
     alert("Session closed! All active tickets have been deactivated.");
     setTickets([]); // Clear the ticket list on frontend
     navigate("/admin/dashboard");
   } catch (err) {
-    console.error("Failed to close session:", err);
+    console.error("❌ Failed to close session:", err.response?.data || err.message);
     alert("Failed to close session");
   }
- };
+};
 
 
   if (loading) return <p>Loading tickets...</p>;
@@ -110,21 +124,20 @@ function SessionPage() {
         </ul>
       )}
 
-    <button
-    style={{
-        padding: "10px 20px",
-        backgroundColor: "#dc3545",
-        color: "white",
-        border: "none",
-        borderRadius: "6px",
-        cursor: "pointer",
-        marginTop: "20px"
-    }}
-    onClick={handleEndSession} // ✅ call the API now
-    >
-    End Session
-    </button>
-
+      <button
+        style={{
+          padding: "10px 20px",
+          backgroundColor: "#dc3545",
+          color: "white",
+          border: "none",
+          borderRadius: "6px",
+          cursor: "pointer",
+          marginTop: "20px"
+        }}
+        onClick={handleEndSession}
+      >
+        End Session
+      </button>
     </div>
   );
 }

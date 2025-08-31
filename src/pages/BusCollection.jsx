@@ -15,16 +15,16 @@ const AdminTickets = () => {
       return;
     }
 
-    // Fetch admin info first
+    // Fetch admin info
     const fetchAdmin = async () => {
       try {
         const res = await axios.get("http://localhost:5000/api/admin/me", {
           headers: { Authorization: `Bearer ${token}` }
         });
         setAdmin(res.data);
-        return res.data; // Return admin data to use in ticket fetch
+        return res.data;
       } catch (err) {
-        console.error(err);
+        console.error("Failed to fetch admin:", err);
         navigate("/admin");
       }
     };
@@ -36,11 +36,14 @@ const AdminTickets = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
 
-        // Filter tickets for this admin only
+        console.log("All tickets:", res.data);
+
+        // ✅ Match tickets by busName
         const filteredTickets = res.data.filter(
-          (t) => t.busId === adminData._id
+          (t) => t.busName === adminData.username || t.busName === adminData.busName
         );
 
+        console.log("Filtered tickets for admin:", filteredTickets);
         setTickets(filteredTickets);
       } catch (err) {
         console.error("Failed to fetch tickets:", err);
