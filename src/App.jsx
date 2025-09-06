@@ -13,6 +13,8 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import ProtectedRoute from "./pages/ProtectedRoutes";
 import CreateSession from "./pages/CreateSession";
+import About from "./pages/About";
+import PassPage from "./pages/PassPage";
 
 function App() {
   const token = localStorage.getItem("token"); // check if logged in
@@ -49,6 +51,17 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+         <Route
+          path="/take-pass"
+          element={
+            <ProtectedRoute>
+              <PassPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="/about" element={<About />} />
 
         {/* Admin routes (you can protect later if needed) */}
         <Route path="/admin" element={<AdminLogin />} />
