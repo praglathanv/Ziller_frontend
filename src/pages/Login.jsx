@@ -2,6 +2,16 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Paper,
+  Avatar,
+  CircularProgress,
+} from "@mui/material";
+import LockOpenIcon from "@mui/icons-material/LockOpen";
 
 function Login() {
   const [formData, setFormData] = useState({ name: "", password: "" });
@@ -12,66 +22,108 @@ function Login() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  try {
-    const res = await axios.post(
-      "http://localhost:5000/api/auth/login",
-      formData
-    );
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        formData
+      );
 
-    // ✅ Extract token and user info from response
-    const { token, user } = res.data;
+      // ✅ Extract token and user info from response
+      const { token, user } = res.data;
 
-    // ✅ Store token and current user in localStorage
-    localStorage.setItem("token", token);
-    localStorage.setItem("currentUser", JSON.stringify(user));
+      // ✅ Store token and current user in localStorage
+      localStorage.setItem("token", token);
+      localStorage.setItem("currentUser", JSON.stringify(user));
 
-    alert("Login successful!");
-    
-    // ✅ Redirect to homepage
-    navigate("/");
-
-  } catch (err) {
-    console.error(err);
-    alert(err.response?.data?.message || "Login failed");
-  } finally {
-    setLoading(false);
-  }
- };
-
+      alert("Login successful!");
+      navigate("/");
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div style={{ maxWidth: "400px", margin: "50px auto", padding: "20px", border: "1px solid #ccc", borderRadius: "10px" }}>
-      <h2 style={{ textAlign: "center", marginBottom: "20px" }}>🔑 Login</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="name"
-          name="name"
-          placeholder="Name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-          style={{ width: "100%", padding: "10px", marginBottom: "10px", borderRadius: "5px" }}
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-          required
-          style={{ width: "100%", padding: "10px", marginBottom: "15px", borderRadius: "5px" }}
-        />
-        <button type="submit" disabled={loading} style={{ width: "100%", padding: "10px", borderRadius: "5px", background: "#28a745", color: "#fff" }}>
-          {loading ? "Logging in..." : "Login"}
-        </button>
-      </form>
-      <p style={{ marginTop: "10px", textAlign: "center" }}>
-        Don't have an account? <span style={{ color: "blue", cursor: "pointer" }} onClick={() => navigate("/signup")}>Signup</span>
-      </p>
-    </div>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        bgcolor: "#f5f5f5",
+      }}
+    >
+      <Paper
+        elevation={3}
+        sx={{
+          p: 4,
+          width: 350,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          borderRadius: 3,
+        }}
+      >
+        <Avatar sx={{ bgcolor: "#ea580c", mb: 2 }}>
+          <LockOpenIcon />
+        </Avatar>
+        <Typography variant="h5" gutterBottom>
+          User Login
+        </Typography>
+
+        <form style={{ width: "100%" }} onSubmit={handleSubmit}>
+          <TextField
+            label="Name"
+            name="name"
+            fullWidth
+            margin="normal"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
+          <TextField
+            label="Password"
+            type="password"
+            name="password"
+            fullWidth
+            margin="normal"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            disabled={loading}
+            sx={{
+              mt: 2,
+              borderRadius: 2,
+              bgcolor: "#ea580c",
+              "&:hover": { bgcolor: "#c2410c" },
+            }}
+          >
+            {loading ? <CircularProgress size={24} color="inherit" /> : "Login"}
+          </Button>
+        </form>
+
+        <Typography variant="body2" sx={{ mt: 2 }}>
+          Don&apos;t have an account?{" "}
+          <span
+            style={{ color: "#ea580c", cursor: "pointer" }}
+            onClick={() => navigate("/signup")}
+          >
+            Signup
+          </span>
+        </Typography>
+      </Paper>
+    </Box>
   );
 }
 

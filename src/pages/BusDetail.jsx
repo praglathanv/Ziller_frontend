@@ -1,38 +1,50 @@
 import React, { useState } from "react";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
-import Map from "./map";
-import axios from "axios"; // ✅ import axios
+import { useParams, useLocation } from "react-router-dom";
+import axios from "axios";
+import Map from "./Map";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Typography,
+  Paper,
+  Stack,
+  Divider,
+} from "@mui/material";
 
-function BusDetail() {
+export default function BusDetailMUI() {
   const { id } = useParams();
   const location = useLocation();
-  const navigate = useNavigate();
 
   const buses = JSON.parse(localStorage.getItem("buses")) || [];
   const bus =
-    location.state ||
-    buses.find((b) => String(b.id) === String(id)) ||
+    location.state || buses.find((b) => String(b.id) === String(id)) ||
     { id, name: "Unknown Bus" };
 
   const [showMap, setShowMap] = useState(false);
   const [routeInfo, setRouteInfo] = useState(null);
+  const [loadingPay, setLoadingPay] = useState(false);
 
   const user = JSON.parse(localStorage.getItem("currentUser"));
   const userName = user?.name || "Guest";
   const userId = user?.id || null;
+
+  const calculateFare = (km) => {
+    if (!km) return 0;
+    if (km <= 10) return 6;
+    return 6 + (km - 10) * 0.58;
+  };
 
   const handleRouteComplete = (data) => {
     setRouteInfo(data);
     setShowMap(false);
   };
 
-  const calculateFare = (km) => {
-    if (km <= 10) return 6;
-    return 6 + (km - 10) * 0.58;
-  };
-
   const handlePay = async () => {
     if (!routeInfo || !userId) return;
+    setLoadingPay(true);
 
     const ticketData = {
       busId: bus.id,
@@ -42,81 +54,92 @@ function BusDetail() {
       start: routeInfo.start,
       destination: routeInfo.destination,
       distance: routeInfo.distance,
-      amount: calculateFare(routeInfo.distance).toFixed(2),
+      amount: Number(calculateFare(routeInfo.distance)).toFixed(2),
       date: new Date().toISOString(),
     };
 
-    console.log(ticketData)
-
     try {
-      // ✅ Save ticket to backend
       await axios.post("http://localhost:5000/api/tickets", ticketData, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // if backend needs auth
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-
       alert("Ticket booked successfully!");
-
-      // ✅ Navigate to Payment page
-      /*navigate("/payment", {
-        state: {
-          bus,
-          amount: ticketData.amount,
-          routeInfo: ticketData,
-        },
-      });*/
     } catch (err) {
       console.error("Failed to book ticket:", err);
       alert("Failed to book ticket. Try again.");
+    } finally {
+      setLoadingPay(false);
     }
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Bus Details</h2>
-      <p><strong>Bus ID:</strong> {bus.id}</p>
-      <p><strong>Bus Name:</strong> {bus.name}</p>
-      <p><strong>Logged-in User:</strong> {userName}</p>
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h5" gutterBottom>
+        Bus Details
+      </Typography>
 
-      {!showMap ? (
-        <>
-          <button
-            onClick={() => setShowMap(true)}
-            style={{ padding: "10px 20px", fontSize: "16px", cursor: "pointer", marginTop: "10px" }}
-          >
-            Find Route
-          </button>
+      <Paper sx={{ p: 2, mb: 2 }} elevation={2}>
+        <Typography><strong>Bus ID:</strong> {bus.id}</Typography>
+        <Typography><strong>Bus Name:</strong> {bus.name}</Typography>
+        <Typography><strong>Logged-in User:</strong> {userName}</Typography>
+      </Paper>
 
-          {routeInfo && (
-            <div style={{ marginTop: "20px", fontSize: "16px" }}>
-              <p><strong>Start:</strong> {routeInfo.start.lat}, {routeInfo.start.lng}</p>
-              <p><strong>Destination:</strong> {routeInfo.destination.lat}, {routeInfo.destination.lng}</p>
-              <p><strong>Distance:</strong> {routeInfo.distance} km &nbsp; | &nbsp;
-                 <strong>Fare:</strong> ₹{calculateFare(routeInfo.distance).toFixed(2)}</p>
+      <Stack direction="row" spacing={2} alignItems="flex-start">
+        <Button
+          variant="contained"
+          onClick={() => setShowMap(true)}
+          sx={{
+            backgroundColor:"#ff9100ff",
+            color: showMap ? "black" : undefined,
+            "&:hover": {
+              backgroundColor: showMap ? "#ff9a1a" : undefined,
+            },
+          }}
+        >
+          Find Route
+        </Button>
 
-              <button
-                onClick={handlePay} // ✅ call new function
-                style={{
-                  padding: "10px 20px",
-                  fontSize: "16px",
+        {routeInfo && (
+          <Paper sx={{ p: 2, minWidth: 280 }}>
+            <Typography variant="subtitle2">Route Selected</Typography>
+            <Divider sx={{ my: 1 }} />
+            <Typography variant="body2">
+              <strong>Start:</strong> {routeInfo.start.lat}, {routeInfo.start.lng}
+            </Typography>
+            <Typography variant="body2">
+              <strong>Destination:</strong> {routeInfo.destination.lat}, {routeInfo.destination.lng}
+            </Typography>
+            <Typography variant="body2">
+              <strong>Distance:</strong> {routeInfo.distance} km &nbsp; | &nbsp;
+              <strong>Fare:</strong> ₹{calculateFare(routeInfo.distance).toFixed(2)}
+            </Typography>
+
+            <Box sx={{ mt: 1 }}>
+              <Button
+                variant="contained"
+                onClick={handlePay}
+                disabled={loadingPay}
+                sx={{
                   backgroundColor: "#28a745",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "6px",
-                  cursor: "pointer",
+                  "&:hover": { backgroundColor: "#2fb85a" },
                 }}
               >
-                Pay
-              </button>
-            </div>
-          )}
-        </>
-      ) : (
-        <Map onRouteComplete={handleRouteComplete} />
-      )}
-    </div>
+                {loadingPay ? "Processing..." : "Pay"}
+              </Button>
+            </Box>
+          </Paper>
+        )}
+      </Stack>
+
+      <Dialog open={showMap} onClose={() => setShowMap(false)} fullWidth maxWidth="md">
+        <DialogTitle>Select route on map</DialogTitle>
+        <DialogContent sx={{ height: { xs: "60vh", sm: "70vh" }, p: 0 }}>
+          <Box sx={{ width: "100%", height: "100%" }}>
+            <Map onRouteComplete={handleRouteComplete} />
+          </Box>
+        </DialogContent>
+      </Dialog>
+    </Box>
   );
 }
-
-export default BusDetail;

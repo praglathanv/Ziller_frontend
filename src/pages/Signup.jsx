@@ -2,6 +2,16 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Paper,
+  Avatar,
+  CircularProgress,
+} from "@mui/material";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 
 function Signup() {
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
@@ -27,44 +37,91 @@ function Signup() {
   };
 
   return (
-    <div style={{ maxWidth: "400px", margin: "50px auto", padding: "20px", border: "1px solid #ccc", borderRadius: "10px" }}>
-      <h2 style={{ textAlign: "center", marginBottom: "20px" }}>📝 Signup</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="name"
-          placeholder="Name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-          style={{ width: "100%", padding: "10px", marginBottom: "10px", borderRadius: "5px" }}
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-          style={{ width: "100%", padding: "10px", marginBottom: "10px", borderRadius: "5px" }}
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-          required
-          style={{ width: "100%", padding: "10px", marginBottom: "15px", borderRadius: "5px" }}
-        />
-        <button type="submit" disabled={loading} style={{ width: "100%", padding: "10px", borderRadius: "5px", background: "#007bff", color: "#fff" }}>
-          {loading ? "Signing up..." : "Signup"}
-        </button>
-      </form>
-      <p style={{ marginTop: "10px", textAlign: "center" }}>
-        Already have an account? <span style={{ color: "blue", cursor: "pointer" }} onClick={() => navigate("/login")}>Login</span>
-      </p>
-    </div>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        bgcolor: "#f5f5f5",
+      }}
+    >
+      <Paper
+        elevation={3}
+        sx={{
+          p: 4,
+          width: 350,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          borderRadius: 3,
+        }}
+      >
+        <Avatar sx={{ bgcolor: "#ea580c", mb: 2 }}>
+          <PersonAddIcon />
+        </Avatar>
+        <Typography variant="h5" gutterBottom>
+          Signup
+        </Typography>
+
+        <form style={{ width: "100%" }} onSubmit={handleSubmit}>
+          <TextField
+            label="Name"
+            name="name"
+            fullWidth
+            margin="normal"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
+          <TextField
+            label="Email"
+            type="email"
+            name="email"
+            fullWidth
+            margin="normal"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+          <TextField
+            label="Password"
+            type="password"
+            name="password"
+            fullWidth
+            margin="normal"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            disabled={loading}
+            sx={{
+              mt: 2,
+              borderRadius: 2,
+              bgcolor: "#ea580c",
+              "&:hover": { bgcolor: "#c2410c" },
+            }}
+          >
+            {loading ? <CircularProgress size={24} color="inherit" /> : "Signup"}
+          </Button>
+        </form>
+
+        <Typography variant="body2" sx={{ mt: 2 }}>
+          Already have an account?{" "}
+          <span
+            style={{ color: "#ea580c", cursor: "pointer" }}
+            onClick={() => navigate("/login")}
+          >
+            Login
+          </span>
+        </Typography>
+      </Paper>
+    </Box>
   );
 }
 
