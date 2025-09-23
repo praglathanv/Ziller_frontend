@@ -85,15 +85,16 @@ const Home = () => {
       </div>
 
       {/* 🔍 Search bar + actions */}
-      <div className="flex items-center justify-between md:justify-center gap-3 mt-4">
+      <div className="flex items-center  justify-between md:justify-center gap-3 mt-4">
         {/* Search bar */}
         <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search the bus you travelling..."
-          className="px-3 py-2 w-[85%] md:ml-10 md:h-12 text-lg font-semibold rounded-lg border border-black/70 outline-none focus:border-2 focus:border-gray-900 placeholder:text-lg placeholder:text-gray-500"
-        />
+  type="text"
+  value={searchQuery}
+  onChange={(e) => setSearchQuery(e.target.value)}
+  placeholder="Search the bus you travelling..."
+  className="px-3 py-2 w-[85%] md:ml-10 md:h-12 text-lg font-semibold rounded-2xl border-4 border-black/40 outline-none focus:border-4 focus:border-gray-900 placeholder:text-lg placeholder:text-gray-500"
+/>
+
 
         <IoLocationSharp className="hidden md:flex text-5xl text-orange-500 border-black"/>
 

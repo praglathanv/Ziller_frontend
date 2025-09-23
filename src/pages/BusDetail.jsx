@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import axios from "axios";
+import Ticket from "../assets/images/ticket.png";
 import Map from "./Map";
+import Swal from "sweetalert2";
 import {
   Box,
   Button,
@@ -12,11 +14,15 @@ import {
   Paper,
   Stack,
   Divider,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 
 export default function BusDetailMUI() {
   const { id } = useParams();
   const location = useLocation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // ✅ Detect mobile
 
   const buses = JSON.parse(localStorage.getItem("buses")) || [];
   const bus =
@@ -38,8 +44,20 @@ export default function BusDetailMUI() {
   };
 
   const handleRouteComplete = (data) => {
-    setRouteInfo(data);
     setShowMap(false);
+
+    Swal.fire({
+      title: "Done!",
+      text: "Route selected successfully.",
+      icon: "success",
+      timer: 1400,
+      showConfirmButton: false,
+      position: "center",
+    });
+
+    setTimeout(() => {
+      setRouteInfo(data);
+    }, 1200);
   };
 
   const handlePay = async () => {
@@ -64,51 +82,121 @@ export default function BusDetailMUI() {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      alert("Ticket booked successfully!");
+
+      Swal.fire({
+        title: "Success!",
+        text: "Ticket booked successfully!",
+        icon: "success",
+        confirmButtonColor: "#28a745",
+      });
     } catch (err) {
       console.error("Failed to book ticket:", err);
-      alert("Failed to book ticket. Try again.");
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to book ticket. Try again.",
+        icon: "error",
+        confirmButtonColor: "#d33",
+      });
     } finally {
       setLoadingPay(false);
     }
   };
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom>
+    <Box sx={{ backgroundColor: "#ecececff", minHeight: "100vh" }}>
+      {/* Title */}
+      <Typography
+        variant="h5"
+        gutterBottom
+        sx={{
+          bgcolor: "#f8ac48ff",
+          height: { xs: 50, sm: 80 },
+          display: "flex",
+          alignItems: "center",
+          pl:5,
+          // justifyContent: "center",
+          color: "white",
+          fontFamily: "revert-layer",
+          fontSize: { xs: 26, sm: 42 },
+          fontWeight: 900,
+          borderRadius: 1,
+        }}
+      >
         Bus Details
       </Typography>
 
-      <Paper sx={{ p: 2, mb: 2 }} elevation={2}>
-        <Typography><strong>Bus ID:</strong> {bus.id}</Typography>
-        <Typography><strong>Bus Name:</strong> {bus.name}</Typography>
-        <Typography><strong>Logged-in User:</strong> {userName}</Typography>
-      </Paper>
+      {/* IMAGE + CENTERED PAPER */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          position: "relative",
+          width: "100%",
+          mt: 3,
+        }}
+      >
+        {/* Background Ticket Image */}
+        <img
+          src={Ticket}
+          alt="Ticket"
+          style={{
+            width: isMobile ? "88%" : "400px",
+            height: "auto",
+            display: "block",
+          }}
+        />
 
-      <Stack direction="row" spacing={2} alignItems="flex-start">
-        <Button
-          variant="contained"
-          onClick={() => setShowMap(true)}
+        {/* Centered Paper */}
+        <Box
           sx={{
-            backgroundColor:"#ff9100ff",
-            color: showMap ? "black" : undefined,
-            "&:hover": {
-              backgroundColor: showMap ? "#ff9a1a" : undefined,
-            },
+            position: "absolute",
+            // border: "3px solid #ff9100ff",
+            // borderRadius: 3,
+            p: 3,
+            width: { xs: "80%", sm: "20%" },
+            bgcolor: "white",
+            // textAlign: "center",
           }}
         >
-          Find Route
-        </Button>
+          <Typography><strong>Bus ID:</strong> {bus.id}</Typography>
+          <Typography><strong>Bus Name:</strong> {bus.name}</Typography>
+          <Typography><strong>Logged-in User:</strong> {userName}</Typography>
 
-        {routeInfo && (
-          <Paper sx={{ p: 2, minWidth: 280 }}>
+          <Button
+            fullWidth={isMobile}
+            onClick={() => setShowMap(true)}
+            sx={{
+              mt: 3,
+              border: "3px solid #ff9100ff",
+              color: "#ff9100ff",
+              borderRadius: 3,
+              backgroundColor: "white",
+              width: isMobile ? "70%" : "150px",
+              "&:hover": { backgroundColor: "#ff9a1a", color: "white" },
+            }}
+          >
+            Find Route
+          </Button>
+        </Box>
+      </Box>
+
+      {/* Route Info Section */}
+      {routeInfo && (
+        <Stack
+          direction={isMobile ? "column" : "row"}
+          spacing={2}
+          sx={{ mt: 3, justifyContent: "center" }}
+        >
+          <Paper sx={{ p: { xs: 1.5, sm: 2 }, width: isMobile ? "90%" : 280 }}>
             <Typography variant="subtitle2">Route Selected</Typography>
             <Divider sx={{ my: 1 }} />
             <Typography variant="body2">
               <strong>Start:</strong> {routeInfo.start.lat}, {routeInfo.start.lng}
             </Typography>
             <Typography variant="body2">
-              <strong>Destination:</strong> {routeInfo.destination.lat}, {routeInfo.destination.lng}
+              <strong>Destination:</strong> {routeInfo.destination.lat},{" "}
+              {routeInfo.destination.lng}
             </Typography>
             <Typography variant="body2">
               <strong>Distance:</strong> {routeInfo.distance} km &nbsp; | &nbsp;
@@ -117,6 +205,7 @@ export default function BusDetailMUI() {
 
             <Box sx={{ mt: 1 }}>
               <Button
+                fullWidth={isMobile}
                 variant="contained"
                 onClick={handlePay}
                 disabled={loadingPay}
@@ -129,10 +218,16 @@ export default function BusDetailMUI() {
               </Button>
             </Box>
           </Paper>
-        )}
-      </Stack>
+        </Stack>
+      )}
 
-      <Dialog open={showMap} onClose={() => setShowMap(false)} fullWidth maxWidth="md">
+      {/* Map Dialog */}
+      <Dialog
+        open={showMap}
+        onClose={() => setShowMap(false)}
+        fullWidth
+        maxWidth="md"
+      >
         <DialogTitle>Select route on map</DialogTitle>
         <DialogContent sx={{ height: { xs: "60vh", sm: "70vh" }, p: 0 }}>
           <Box sx={{ width: "100%", height: "100%" }}>
