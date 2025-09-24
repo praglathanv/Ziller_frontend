@@ -11,8 +11,6 @@ import {
   DialogTitle,
   DialogContent,
   Typography,
-  Paper,
-  Stack,
   Divider,
   useMediaQuery,
   useTheme,
@@ -22,7 +20,7 @@ export default function BusDetailMUI() {
   const { id } = useParams();
   const location = useLocation();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // ✅ Detect mobile
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const buses = JSON.parse(localStorage.getItem("buses")) || [];
   const bus =
@@ -113,8 +111,7 @@ export default function BusDetailMUI() {
           height: { xs: 50, sm: 80 },
           display: "flex",
           alignItems: "center",
-          pl:5,
-          // justifyContent: "center",
+          pl: 5,
           color: "white",
           fontFamily: "revert-layer",
           fontSize: { xs: 26, sm: 42 },
@@ -147,79 +144,63 @@ export default function BusDetailMUI() {
           }}
         />
 
-        {/* Centered Paper */}
+        {/* White Paper Overlay */}
         <Box
           sx={{
             position: "absolute",
-            // border: "3px solid #ff9100ff",
-            // borderRadius: 3,
             p: 3,
             width: { xs: "80%", sm: "20%" },
             bgcolor: "white",
-            // textAlign: "center",
+            // borderRadius: 3,
+            // boxShadow: 2,
           }}
         >
+          {/* Bus Details */}
           <Typography><strong>Bus ID:</strong> {bus.id}</Typography>
           <Typography><strong>Bus Name:</strong> {bus.name}</Typography>
           <Typography><strong>Logged-in User:</strong> {userName}</Typography>
 
+          {/* ✅ Route Info Inside Paper */}
+          {routeInfo && (
+            <>
+              <Typography variant="body2">
+                <strong>Start:</strong> {routeInfo.start.lat}, {routeInfo.start.lng}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Destination:</strong> {routeInfo.destination.lat},{" "}
+                {routeInfo.destination.lng}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Distance:</strong> {routeInfo.distance} km
+              </Typography>
+              <Typography variant="body2">
+                <strong>Fare:</strong> ₹{calculateFare(routeInfo.distance).toFixed(2)}
+              </Typography> 
+            </>
+          )}
+
+          {/* ✅ Button changes from Find Route → Pay */}
           <Button
             fullWidth={isMobile}
-            onClick={() => setShowMap(true)}
+            onClick={() => (routeInfo ? handlePay() : setShowMap(true))}
+            disabled={loadingPay}
             sx={{
-              mt: 3,
-              border: "3px solid #ff9100ff",
-              color: "#ff9100ff",
+              mt: 2,
+              border: routeInfo ? "none" : "3px solid #ff9100ff",
+              color: routeInfo ? "white" : "#ff9100ff",
               borderRadius: 3,
-              backgroundColor: "white",
+              backgroundColor: routeInfo ? "#28a745" : "white",
               width: isMobile ? "70%" : "150px",
-              "&:hover": { backgroundColor: "#ff9a1a", color: "white" },
+              "&:hover": {
+                backgroundColor: routeInfo ? "#2fb85a" : "#ff9a1a",
+                color: "white",
+              },
             }}
           >
-            Find Route
+            {routeInfo ? (loadingPay ? "Processing..." : "Pay") : "Find Route"}
           </Button>
         </Box>
       </Box>
-
-      {/* Route Info Section */}
-      {routeInfo && (
-        <Stack
-          direction={isMobile ? "column" : "row"}
-          spacing={2}
-          sx={{ mt: 3, justifyContent: "center" }}
-        >
-          <Paper sx={{ p: { xs: 1.5, sm: 2 }, width: isMobile ? "90%" : 280 }}>
-            <Typography variant="subtitle2">Route Selected</Typography>
-            <Divider sx={{ my: 1 }} />
-            <Typography variant="body2">
-              <strong>Start:</strong> {routeInfo.start.lat}, {routeInfo.start.lng}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Destination:</strong> {routeInfo.destination.lat},{" "}
-              {routeInfo.destination.lng}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Distance:</strong> {routeInfo.distance} km &nbsp; | &nbsp;
-              <strong>Fare:</strong> ₹{calculateFare(routeInfo.distance).toFixed(2)}
-            </Typography>
-
-            <Box sx={{ mt: 1 }}>
-              <Button
-                fullWidth={isMobile}
-                variant="contained"
-                onClick={handlePay}
-                disabled={loadingPay}
-                sx={{
-                  backgroundColor: "#28a745",
-                  "&:hover": { backgroundColor: "#2fb85a" },
-                }}
-              >
-                {loadingPay ? "Processing..." : "Pay"}
-              </Button>
-            </Box>
-          </Paper>
-        </Stack>
-      )}
 
       {/* Map Dialog */}
       <Dialog
