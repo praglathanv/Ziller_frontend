@@ -11,7 +11,6 @@ import {
   DialogTitle,
   DialogContent,
   Typography,
-  Divider,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
@@ -24,8 +23,8 @@ export default function BusDetailMUI() {
 
   const buses = JSON.parse(localStorage.getItem("buses")) || [];
   const bus =
-    location.state || buses.find((b) => String(b.id) === String(id)) ||
-    { id, name: "Unknown Bus" };
+    location.state ||
+    buses.find((b) => String(b.id) === String(id)) || { id, name: "Unknown Bus" };
 
   const [showMap, setShowMap] = useState(false);
   const [routeInfo, setRouteInfo] = useState(null);
@@ -101,17 +100,17 @@ export default function BusDetailMUI() {
   };
 
   return (
-    <Box sx={{ backgroundColor: "#ecececff", minHeight: "100vh" }}>
+    <Box sx={{ backgroundColor: "#e0e0e0ff", minHeight: "100vh" }}>
       {/* Title */}
       <Typography
         variant="h5"
         gutterBottom
         sx={{
-          bgcolor: "#f8ac48ff",
+        background: "radial-gradient(circle at bottom left, orange 60%, white 120%)",
           height: { xs: 50, sm: 80 },
           display: "flex",
           alignItems: "center",
-          pl: 5,
+          pl: {xs:3,sm: 5},
           color: "white",
           fontFamily: "revert-layer",
           fontSize: { xs: 26, sm: 42 },
@@ -150,9 +149,7 @@ export default function BusDetailMUI() {
             position: "absolute",
             p: 3,
             width: { xs: "80%", sm: "20%" },
-            bgcolor: "white",
-            // borderRadius: 3,
-            // boxShadow: 2,
+            bgcolor: "transparent",
           }}
         >
           {/* Bus Details */}
@@ -160,39 +157,44 @@ export default function BusDetailMUI() {
           <Typography><strong>Bus Name:</strong> {bus.name}</Typography>
           <Typography><strong>Logged-in User:</strong> {userName}</Typography>
 
-          {/* ✅ Route Info Inside Paper */}
-          {routeInfo && (
-            <>
-              <Typography variant="body2">
-                <strong>Start:</strong> {routeInfo.start.lat}, {routeInfo.start.lng}
-              </Typography>
-              <Typography variant="body2">
-                <strong>Destination:</strong> {routeInfo.destination.lat},{" "}
-                {routeInfo.destination.lng}
-              </Typography>
-              <Typography variant="body2">
-                <strong>Distance:</strong> {routeInfo.distance} km
-              </Typography>
-              <Typography variant="body2">
-                <strong>Fare:</strong> ₹{calculateFare(routeInfo.distance).toFixed(2)}
-              </Typography> 
-            </>
-          )}
+          {/* ✅ Route Info Always Visible */}
+          <Typography variant="body2">
+            <strong>Start:</strong>{" "}
+            {routeInfo?.start
+              ? `${routeInfo.start.lat}, ${routeInfo.start.lng}`
+              : "Not selected"}
+          </Typography>
+          <Typography variant="body2">
+            <strong>Destination:</strong>{" "}
+            {routeInfo?.destination
+              ? `${routeInfo.destination.lat}, ${routeInfo.destination.lng}`
+              : "Not selected"}
+          </Typography>
+          <Typography variant="body2">
+            <strong>Distance:</strong>{" "}
+            {routeInfo?.distance ? `${routeInfo.distance} km` : "0 km"}
+          </Typography>
+          <Typography variant="body2">
+            <strong>Fare:</strong> ₹
+            {routeInfo?.distance
+              ? calculateFare(routeInfo.distance).toFixed(2)
+              : "0.00"}
+          </Typography>
 
-          {/* ✅ Button changes from Find Route → Pay */}
+          {/* Button */}
           <Button
             fullWidth={isMobile}
             onClick={() => (routeInfo ? handlePay() : setShowMap(true))}
             disabled={loadingPay}
             sx={{
               mt: 2,
-              border: routeInfo ? "none" : "3px solid #ff9100ff",
-              color: routeInfo ? "white" : "#ff9100ff",
+              border: routeInfo ? "3px solid #28a745" : "3px solid #ff9100ff",
+              color: routeInfo ? "#28a745" : "#ff9100ff",
               borderRadius: 3,
-              backgroundColor: routeInfo ? "#28a745" : "white",
+              backgroundColor: routeInfo ? "#ffffffff" : "#ffffffff",
               width: isMobile ? "70%" : "150px",
               "&:hover": {
-                backgroundColor: routeInfo ? "#2fb85a" : "#ff9a1a",
+                backgroundColor: routeInfo ? "#28a745" : "#ff9a1a",
                 color: "white",
               },
             }}
@@ -203,12 +205,7 @@ export default function BusDetailMUI() {
       </Box>
 
       {/* Map Dialog */}
-      <Dialog
-        open={showMap}
-        onClose={() => setShowMap(false)}
-        fullWidth
-        maxWidth="md"
-      >
+      <Dialog open={showMap} onClose={() => setShowMap(false)} fullWidth maxWidth="md">
         <DialogTitle>Select route on map</DialogTitle>
         <DialogContent sx={{ height: { xs: "60vh", sm: "70vh" }, p: 0 }}>
           <Box sx={{ width: "100%", height: "100%" }}>

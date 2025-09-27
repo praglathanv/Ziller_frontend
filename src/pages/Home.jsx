@@ -3,6 +3,19 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import homeBanner from "../assets/images/home_banner.png";
 import { IoLocationSharp } from "react-icons/io5";
+import {
+  Box,
+  Typography,
+  Button,
+  TextField,
+  Drawer,
+  List,
+  ListItemButton,
+  ListItemText,
+  IconButton,
+  Paper,
+} from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
 
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -10,7 +23,6 @@ const Home = () => {
   const [admins, setAdmins] = useState([]);
   const navigate = useNavigate();
 
-  // ✅ Fetch admins from backend on searchQuery change
   useEffect(() => {
     if (searchQuery.trim() === "") {
       setAdmins([]);
@@ -25,7 +37,7 @@ const Home = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        
+
         const filtered = res.data.filter(
           (admin) =>
             admin.currentSession === true &&
@@ -41,189 +53,235 @@ const Home = () => {
   }, [searchQuery]);
 
   return (
-    <div className="relative h-[100dvh] px-2 overflow-hidden bg-[radial-gradient(circle_at_bottom_right,_orange_1%,_white_60%)]">
-      <div className="flex">   
-        <h1 className="flex-1 text-4xl tracking-wide font-bold mt-1 md:mt-6 md:ml-3 md:text-6xl font-serif drop-shadow-[0_0_1px_rgb(249,115,22)]">Ziller</h1>
-        {/* ✅ Desktop Buttons */}
-        <div className="hidden flex-1 md:flex justify-center items-end">
-          <div className="flex gap-x-10 justify-center items-center">
-          <button
-            className="px-4 py-2 rounded-md hover:bg-orange-600 hover:text-white text-lg font-semibold"
-            onClick={() => navigate("/tickets")}
-          >
-            History
-          </button>
-          <button
-            className="px-4 py-2 rounded-md  hover:bg-orange-600 hover:text-white text-lg font-semibold"
-            onClick={() => navigate("/take-pass")}
-          >
-            Take Pass
-          </button>
-          <button
-            className="px-4 py-2 rounded-md  hover:bg-orange-600 hover:text-white text-lg font-semibold"
-            onClick={() => navigate("/about")}
-          >
-            About Us
-          </button>
-          <button
-            className="px-4 py-2 rounded-md  hover:bg-orange-600 hover:text-white text-lg font-semibold"
-            onClick={() => navigate("/admin")}
-          >
-            Admin
-          </button>
-          <button
-            className="px-4 py-2 rounded-md hover:bg-orange-600 hover:text-white text-lg font-semibold"
+    <Box
+      sx={{
+        position: "relative",
+        height: "100dvh",
+        px: 2,
+        overflow: "hidden",
+        background: "radial-gradient(circle at bottom right, orange 1%, white 60%)",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      {/* Top Bar */}
+      <Box display="flex" alignItems="center" mt={1} mb={2}>
+        <Typography
+          variant="h3"
+          sx={{
+            flex: 1,
+            color:"white",
+            fontWeight: "bold",
+            fontFamily: "serif",
+            textShadow: "0 0 10px rgb(249,115,22)",
+          }}
+        >
+          Ziller
+        </Typography>
+
+        {/* Desktop Menu */}
+        <Box
+          sx={{
+            display: { xs: "none", md: "flex" },
+            flex: 1,
+            justifyContent: "center",
+            gap: 3,
+          }}
+        >
+          <Button onClick={() => navigate("/tickets")}>History</Button>
+          <Button onClick={() => navigate("/take-pass")}>Take Pass</Button>
+          <Button onClick={() => navigate("/about")}>About Us</Button>
+          <Button onClick={() => navigate("/admin")}>Admin</Button>
+          <Button
             onClick={() => {
               localStorage.clear();
               navigate("/login");
             }}
           >
             Logout
-          </button>
-          </div>
-        </div>
-      </div>
+          </Button>
+        </Box>
+      </Box>
 
-      {/* 🔍 Search bar + actions */}
-      <div className="flex items-center  justify-between md:justify-center gap-3 mt-4">
-        {/* Search bar */}
-        <input
-  type="text"
-  value={searchQuery}
-  onChange={(e) => setSearchQuery(e.target.value)}
-  placeholder="Search the bus you travelling..."
-  className="px-3 py-2 w-[85%] md:ml-10 md:h-12 text-lg font-semibold rounded-2xl border-4 border-black/40 outline-none focus:border-4 focus:border-gray-900 placeholder:text-lg placeholder:text-gray-500"
-/>
+      {/* Search Bar + Actions */}
+      <Box display="flex" alignItems="center" justifyContent="space-between" mt={2}>
+        <TextField
+          fullWidth
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search the bus you travelling..."
+          variant="outlined"
+          sx={{
+            flex: 1,
+            mx: { md: 2 },
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "16px",
+              fontWeight: "bold",
+              fontSize: "1.2rem",
+              border: "3px solid rgba(0,0,0,0.4)",
+            },
+            "& .MuiOutlinedInput-input::placeholder": {
+              fontSize: "1.1rem",
+              color: "gray",
+            },
+          }}
+        />
 
+        <Box
+          sx={{
+            display: { xs: "none", md: "flex" },
+            ml: 2,
+            fontSize: "2.5rem",
+            color: "orange",
+          }}
+        >
+          <IoLocationSharp />
+        </Box>
 
-        <IoLocationSharp className="hidden md:flex text-5xl text-orange-500 border-black"/>
+        {/* Mobile Menu Icon */}
+        <IconButton
+          onClick={() => setMenuOpen(true)}
+          sx={{ display: { xs: "flex", md: "none" } }}
+        >
+          <MenuIcon fontSize="large" />
+        </IconButton>
+      </Box>
 
-        {/* ☰ Mobile Hamburger */}
-        <div className="relative md:hidden">
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="text-3xl p-1 font-bold bg-transparent border-none cursor-pointer"
-          >
-            ☰
-          </button>
-        </div>
-      </div>
+      {/* Center Section */}
+      <Box
+        display="flex"
+        flex={1}
+        alignItems="center"
+        justifyContent="center"
+        flexDirection="row"
+      >
+        <Box display={{ xs: "none", md: "flex" }} flexDirection="column" gap={2}>
+          {["No more", "regret for", "the change"].map((text, i) => (
+            <Typography
+              key={i}
+              variant="h3"
+              sx={{
+                fontWeight: "bold",
+                background: "linear-gradient(to right, orange, gold)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              {text}
+            </Typography>
+          ))}
+        </Box>
 
-      {/* 🔎 Image centered section */}
-      <div className="flex flex-1 h-full w-full items-center justify-center">
-        <div className="h-full w-full flex justify-center items-center text-5xl md:text-6xl px-2">
-          <div className="hidden md:flex flex-col gap-y-6 font-bold">
-            <p className="font-royal font-bold bg-gradient-to-r from-orange-600 to-yellow-500 bg-clip-text text-transparent">No more</p>  
-            <p className="font-royal font-bold bg-gradient-to-r from-orange-600 to-yellow-500 bg-clip-text text-transparent">regret for</p> 
-            <p className="font-royal font-bold bg-gradient-to-r from-orange-600 to-yellow-500 bg-clip-text text-transparent">the change</p> 
-          </div>
-          <div className="md:hidden font-serif flex flex-col gap-y-3 flex-1 font-bold">
-            <p className="font-royal text-4xl font-bold bg-gradient-to-r from-orange-600 to-yellow-500 bg-clip-text text-transparent">No more</p>
-            <p className="font-royal text-4xl font-bold bg-gradient-to-r from-orange-600 to-yellow-500 bg-clip-text text-transparent">regret</p> 
-            <p className="font-royal text-4xl font-bold bg-gradient-to-r from-orange-600 to-yellow-500 bg-clip-text text-transparent">for the </p> 
-            <p className="font-royal text-4xl font-bold bg-gradient-to-r from-orange-600 to-yellow-500 bg-clip-text text-transparent">change</p> 
-          </div>
-          <div className="flex-1 md:hidden ">
-            <img 
-              src={homeBanner} 
-              alt="banner" 
-              className="h-full object-contain" 
-            />
-          </div>
-          <img 
-            src={homeBanner} 
-            alt="banner" 
-            className="h-full hidden md:block object-contain" 
+        {/* Mobile text */}
+        <Box display={{ xs: "flex", md: "none" }} flexDirection="column" gap={1}>
+          {["No more", "regret", "for the", "change"].map((text, i) => (
+            <Typography
+              key={i}
+              variant="h4"
+              sx={{
+                fontWeight: "bold",
+                background: "linear-gradient(to right, orange, gold)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              {text}
+            </Typography>
+          ))}
+        </Box>
+
+        {/* Banner Image */}
+        <Box flex={1} display="flex" justifyContent="center">
+          <Box
+            component="img"
+            src={homeBanner}
+            alt="banner"
+            sx={{
+              maxHeight: "100%",
+              objectFit: "contain",
+              display: { xs: "block", md: "block" },
+            }}
           />
-        </div>
-      </div>
+        </Box>
+      </Box>
 
-      {/* 🔎 Results */}
+      {/* Search Results */}
       {searchQuery && (
-        <div style={{ top: '9.2rem' }} className="absolute left-1/2 -translate-x-1/2 w-[90%] md:w-[50%] bg-white rounded-lg shadow-md p-3 z-20">
+        <Paper
+          elevation={3}
+          sx={{
+            position: "absolute",
+            top: "9.2rem",
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: { xs: "90%", md: "50%" },
+            p: 2,
+            borderRadius: 2,
+            zIndex: 20,
+          }}
+        >
           {admins.length > 0 ? (
-            <ul className="list-none p-0">
-              {admins.map((admin) => (
-                <li
-                  key={admin._id || admin.id}  // ✅ use correct id
-                  className="py-2 px-3 cursor-pointer hover:bg-gray-100 rounded-md font-semibold"
-                  onClick={() =>
-                    navigate(`/bus/${admin._id}`, {
-                      state: { id: admin._id || admin.id, name: admin.username },
-                    })
-                  }
-                >
-                  🚌 {admin.username}
-                </li>
-              ))}
-            </ul>
+            admins.map((admin) => (
+              <Box
+                key={admin._id}
+                sx={{
+                  p: 1,
+                  borderRadius: 1,
+                  cursor: "pointer",
+                  "&:hover": { backgroundColor: "grey.100" },
+                  fontWeight: "bold",
+                }}
+                onClick={() =>
+                  navigate(`/bus/${admin._id}`, {
+                    state: { id: admin._id, name: admin.username },
+                  })
+                }
+              >
+                🚌 {admin.username}
+              </Box>
+            ))
           ) : (
-            <p className="text-gray-600">No admins found</p>
+            <Typography color="text.secondary">No admins found</Typography>
           )}
-        </div>
+        </Paper>
       )}
 
-          {menuOpen && (
-            <div 
-              onClick={() => setMenuOpen(false)}
-              className="absolute top-0 right-0 flex justify-end items-start h-full w-full bg-black/30 backdrop-blur-sm z-10"
-            >
-              
-                <div onClick={(e) => e.stopPropagation()} className="flex flex-col font-bold bg-white py-4 gap-y-2 rounded-b-xl w-full justify-center items-center mx-2">
-                  <button
-                    className="w-full text-center border-b border-black rounded-lg text-base py-3 px-4 hover:bg-gray-100"
-                    onClick={() => {
-                      setMenuOpen(false);
-                      navigate("/tickets");
-                    }}
-                  >
-                    History
-                  </button>
-
-                  <button
-                    className="w-full text-center border-b border-black rounded-lg text-base py-3 px-3 hover:bg-gray-100"
-                    onClick={() => {
-                      setMenuOpen(false);
-                      navigate("/take-pass");
-                    }}
-                  >
-                    Take Pass
-                  </button>
-
-                  <button
-                    className="w-full text-center border-b border-black rounded-lg text-base py-3 px-3 hover:bg-gray-100"
-                    onClick={() => {
-                      setMenuOpen(false);
-                      navigate("/about");
-                    }}
-                  >
-                    About Us
-                  </button>
-
-            <button
-              className="w-full text-center border-b border-black rounded-lg text-base py-3 px-3 hover:bg-gray-100"
+      {/* Mobile Drawer */}
+      <Drawer
+        anchor="right"
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        PaperProps={{ sx: { width: "75%" } }}
+      >
+        <List>
+          {[
+            { label: "History", to: "/tickets" },
+            { label: "Take Pass", to: "/take-pass" },
+            { label: "About Us", to: "/about" },
+            { label: "Admin", to: "/admin" },
+          ].map((item) => (
+            <ListItemButton
+              key={item.label}
               onClick={() => {
                 setMenuOpen(false);
-                navigate("/admin");
+                navigate(item.to);
               }}
             >
-              Admin
-            </button>
-
-            <button
-              className="w-full text-center rounded-lg text-base py-3 px-3 hover:bg-gray-100"
-              onClick={() => {
-                setMenuOpen(false);
-                localStorage.clear();
-                navigate("/login");
-              }}
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
+              <ListItemText primary={item.label} />
+            </ListItemButton>
+          ))}
+          <ListItemButton
+            onClick={() => {
+              setMenuOpen(false);
+              localStorage.clear();
+              navigate("/login");
+            }}
+          >
+            <ListItemText primary="Logout" />
+          </ListItemButton>
+        </List>
+      </Drawer>
+    </Box>
   );
 };
 
