@@ -10,6 +10,7 @@ import {
   Paper,
   Avatar,
   CircularProgress,
+  Fade,
 } from "@mui/material";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 
@@ -27,14 +28,11 @@ function Login() {
     setLoading(true);
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/auth/login",
+        "https://ziller-backend.onrender.com/api/auth/login",
         formData
       );
 
-      // ✅ Extract token and user info from response
       const { token, user } = res.data;
-
-      // ✅ Store token and current user in localStorage
       localStorage.setItem("token", token);
       localStorage.setItem("currentUser", JSON.stringify(user));
 
@@ -48,6 +46,15 @@ function Login() {
     }
   };
 
+  // Keyframes for gradient animation
+  const keyframes = {
+    "@keyframes moveGradient": {
+      "0%": { backgroundPosition: "0% 50%" },
+      "50%": { backgroundPosition: "100% 50%" },
+      "100%": { backgroundPosition: "0% 50%" },
+    },
+  };
+
   return (
     <Box
       sx={{
@@ -55,74 +62,184 @@ function Login() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        bgcolor: "#f5f5f5",
+        position: "relative",
+        overflow: "hidden",
+        background: `linear-gradient(120deg, #1a0a00 0%, #2b1200 25%, #3a1700 50%, #2b1200 75%, #1a0a00 100%)`,
+        backgroundSize: "200% 200%",
+        animation: "moveGradient 18s ease-in-out infinite",
+        ...keyframes,
       }}
     >
-      <Paper
-        elevation={3}
+      {/* subtle glowing grid overlay */}
+      <Box
         sx={{
-          p: 4,
-          width: 350,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          borderRadius: 3,
+          position: "absolute",
+          inset: 0,
+          pointerEvents: "none",
+          backgroundImage:
+            "radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+          opacity: 0.5,
         }}
-      >
-        <Avatar sx={{ bgcolor: "#ea580c", mb: 2 }}>
-          <LockOpenIcon />
-        </Avatar>
-        <Typography variant="h5" gutterBottom>
-          User Login
-        </Typography>
+      />
 
-        <form style={{ width: "100%" }} onSubmit={handleSubmit}>
-          <TextField
-            label="Name"
-            name="name"
-            fullWidth
-            margin="normal"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
-          <TextField
-            label="Password"
-            type="password"
-            name="password"
-            fullWidth
-            margin="normal"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-
-          <Button
-            type="submit"
-            variant="contained"
-            fullWidth
-            disabled={loading}
+      <Fade in appear>
+        <Paper
+          elevation={10}
+          sx={{
+            position: "relative",
+            p: 4,
+            width: { xs: "85%", sm: 380 },
+            borderRadius: 4,
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02))",
+            backdropFilter: "blur(8px) saturate(120%)",
+            border: "1px solid rgba(255,145,0,0.15)",
+            boxShadow:
+              "0 10px 40px rgba(255,120,20,0.1), inset 0 1px 0 rgba(255,255,255,0.02)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            zIndex: 5,
+          }}
+        >
+          <Avatar
             sx={{
-              mt: 2,
-              borderRadius: 2,
-              bgcolor: "#ea580c",
-              "&:hover": { bgcolor: "#c2410c" },
+              bgcolor: "#ff7e00",
+              width: 64,
+              height: 64,
+              mb: 2,
+              boxShadow: "0 0 25px rgba(255,126,0,0.35)",
             }}
           >
-            {loading ? <CircularProgress size={24} color="inherit" /> : "Login"}
-          </Button>
-        </form>
+            <LockOpenIcon fontSize="large" />
+          </Avatar>
 
-        <Typography variant="body2" sx={{ mt: 2 }}>
-          Don&apos;t have an account?{" "}
-          <span
-            style={{ color: "#ea580c", cursor: "pointer" }}
-            onClick={() => navigate("/signup")}
+          <Typography
+            variant="h5"
+            sx={{
+              mb: 1,
+              fontWeight: 900,
+              color: "#fff4e5",
+              letterSpacing: 0.5,
+            }}
           >
-            Signup
-          </span>
-        </Typography>
-      </Paper>
+            Welcome Back
+          </Typography>
+          <Typography sx={{ mb: 3, color: "#ffddb0", fontSize: 14 }}>
+            Login to continue your journey
+          </Typography>
+
+          <form style={{ width: "100%" }} onSubmit={handleSubmit}>
+            <TextField
+              label="Name"
+              name="name"
+              fullWidth
+              margin="normal"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              InputLabelProps={{ style: { color: "#ffddb0" } }}
+              InputProps={{
+                style: {
+                  color: "#fff",
+                  background: "rgba(255,255,255,0.05)",
+                  borderRadius: 8,
+                },
+              }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": { borderColor: "rgba(255,160,60,0.2)" },
+                  "&:hover fieldset": {
+                    borderColor: "rgba(255,160,60,0.4)",
+                  },
+                },
+              }}
+            />
+            <TextField
+              label="Password"
+              type="password"
+              name="password"
+              fullWidth
+              margin="normal"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              InputLabelProps={{ style: { color: "#ffddb0" } }}
+              InputProps={{
+                style: {
+                  color: "#fff",
+                  background: "rgba(255,255,255,0.05)",
+                  borderRadius: 8,
+                },
+              }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": { borderColor: "rgba(255,160,60,0.2)" },
+                  "&:hover fieldset": {
+                    borderColor: "rgba(255,160,60,0.4)",
+                  },
+                },
+              }}
+            />
+
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              disabled={loading}
+              sx={{
+                mt: 3,
+                py: 1.3,
+                borderRadius: 3,
+                fontWeight: 700,
+                letterSpacing: 0.5,
+                background:
+                  "linear-gradient(90deg,#ffb347,#ff7e00,#ffb347)",
+                backgroundSize: "200%",
+                color: "#1a0a00",
+                boxShadow: "0 10px 25px rgba(255,126,0,0.25)",
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  backgroundPosition: "right center",
+                  transform: "translateY(-3px)",
+                  boxShadow: "0 20px 45px rgba(255,126,0,0.35)",
+                },
+              }}
+            >
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                "Login"
+              )}
+            </Button>
+          </form>
+
+          <Typography sx={{ mt: 3, color: "#ffddb0" }}>
+            Don’t have an account?{" "}
+            <span
+              style={{
+                color: "#ff7e00",
+                cursor: "pointer",
+                fontWeight: 700,
+              }}
+              onClick={() => navigate("/signup")}
+            >
+              Signup
+            </span>
+          </Typography>
+
+          <Typography
+            sx={{
+              mt: 4,
+              fontSize: 12,
+              color: "#804a00",
+            }}
+          >
+            © {new Date().getFullYear()} Ziller — Design by Senju Kirmada
+          </Typography>
+        </Paper>
+      </Fade>
     </Box>
   );
 }

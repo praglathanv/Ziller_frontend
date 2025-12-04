@@ -11,7 +11,7 @@ function SessionPage() {
     const fetchActiveTickets = async () => {
       try {
         const token = localStorage.getItem("adminToken"); // admin auth
-        const res = await axios.get("http://localhost:5000/api/tickets", {
+        const res = await axios.get("https://ziller-backend.onrender.com/api/tickets", {
           headers: { Authorization: `Bearer ${token}` }
         });
 

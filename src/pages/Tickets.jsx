@@ -1,23 +1,36 @@
-// src/Tickets.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import {
+  Box,
+  Typography,
+  Paper,
+  Avatar,
+  CircularProgress,
+  Chip,
+  Stack,
+  Button,
+  useMediaQuery,
+} from "@mui/material";
+import HistoryIcon from "@mui/icons-material/History";
+import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
+import HomeIcon from "@mui/icons-material/Home";
+import LogoutIcon from "@mui/icons-material/Logout";
+import Zillerlogo from "../assets/images/zillerlogo.png";
+import { useNavigate } from "react-router-dom";
 
-function Tickets() {
+export default function Tickets() {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
+  const isMobile = useMediaQuery("(max-width:900px)");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const token = localStorage.getItem("token"); // JWT for auth
-        const res = await axios.get("http://localhost:5000/api/tickets", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const token = localStorage.getItem("token");
+        const res = await axios.get("https://ziller-backend.onrender.com/api/tickets", {
+          headers: { Authorization: `Bearer ${token}` },
         });
-        console.log(res.data);
-        
-
         setTickets(res.data || []);
       } catch (err) {
         console.error("Failed to fetch tickets:", err);
@@ -26,65 +39,209 @@ function Tickets() {
         setLoading(false);
       }
     };
-
     fetchTickets();
   }, []);
 
   if (loading) {
-    return <p style={{ textAlign: "center", marginTop: "20px" }}>Loading tickets...</p>;
+    return (
+      <Box
+        sx={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          bgcolor: "#1a0a00",
+        }}
+      >
+        <CircularProgress sx={{ color: "#ffb347" }} />
+      </Box>
+    );
   }
 
   return (
-    <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
-      <h2 style={{ marginBottom: "20px", textAlign: "center" }}>🎟️ My Ticket History</h2>
+    <Box
+      className="min-h-screen w-full bg-gradient-to-br from-[#1a0a00] to-[#2a1400] relative overflow-hidden"
+      sx={{
+        fontFamily: 'Inter, system-ui, -apple-system, "Segoe UI", Roboto',
+        color: "#fff4e5",
+      }}
+    >
+      {/* Background grid */}
+      <Box
+        sx={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage:
+            "radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02), transparent)",
+          backgroundSize: "40px 40px, 100% 100%",
+          opacity: 0.6,
+          pointerEvents: "none",
+        }}
+      />
 
-      {tickets.length === 0 ? (
-        <p style={{ textAlign: "center", fontSize: "16px" }}>No tickets found.</p>
-      ) : (
-        <ul style={{ listStyle: "none", padding: 0 }}>
-          {tickets.map((t, idx) => (
-            <li
-              key={t._id || idx}
-              style={{
-                marginBottom: "15px",
-                padding: "15px",
-                border: "1px solid #ccc",
-                borderRadius: "10px",
-                boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-                backgroundColor: "#f9f9f9",
-                position: "relative",
-              }}
-            >
-              {/* Status badge */}
-              <span
-                style={{
-                  position: "absolute",
-                  top: "15px",
-                  right: "15px",
-                  padding: "5px 10px",
-                  borderRadius: "5px",
-                  fontWeight: "bold",
-                  color: "white",
-                  backgroundColor: t.active ? "green" : "gray",
+      {/* Header */}
+      <Box className="flex items-center justify-between px-6 md:px-12 py-6 z-20 relative">
+        <Box className="flex items-center gap-4">
+          <Avatar src={Zillerlogo} alt="Ziller" sx={{ width: 56, height: 56 }} />
+          <Box>
+            <Typography variant="h6" sx={{ color: "#fff4e5", fontWeight: 800 }}>
+              Ziller
+            </Typography>
+            <Typography variant="caption" sx={{ color: "#ffc17a" }}>
+              My Ticket History
+            </Typography>
+          </Box>
+        </Box>
+
+        <Box className="hidden md:flex items-center gap-3">
+          <Button
+            variant="text"
+            startIcon={<HomeIcon />}
+            onClick={() => navigate("/")}
+            sx={{
+              color: "#ffe8cc",
+              textTransform: "none",
+              fontWeight: 700,
+            }}
+          >
+            Home
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<LogoutIcon />}
+            onClick={() => {
+              localStorage.clear();
+              navigate("/login");
+            }}
+            sx={{
+              color: "#ffe8cc",
+              borderColor: "rgba(255,200,150,0.25)",
+              textTransform: "none",
+            }}
+          >
+            Logout
+          </Button>
+        </Box>
+      </Box>
+
+      {/* Ticket Section */}
+      <Box
+        className="z-20 relative"
+        sx={{
+          px: { xs: 3, md: 10 },
+          py: 4,
+        }}
+      >
+        <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 4 }}>
+          <HistoryIcon sx={{ color: "#ffb347" }} />
+          <Typography
+            variant="h4"
+            sx={{ fontWeight: 900, color: "#fff4e5", letterSpacing: 0.5 }}
+          >
+            Ticket History
+          </Typography>
+        </Stack>
+
+        {tickets.length === 0 ? (
+          <Paper
+            elevation={4}
+            sx={{
+              p: 4,
+              textAlign: "center",
+              borderRadius: 3,
+              background:
+                "linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))",
+            }}
+          >
+            <Typography sx={{ color: "#ffdca8" }}>
+              No tickets found.
+            </Typography>
+          </Paper>
+        ) : (
+          <Stack spacing={3}>
+            {tickets.map((t, idx) => (
+              <Paper
+                key={t._id || idx}
+                elevation={6}
+                sx={{
+                  p: 3,
+                  borderRadius: 3,
+                  backdropFilter: "blur(6px)",
+                  background:
+                    "linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))",
+                  border: "1px solid rgba(255,180,0,0.15)",
+                  transition: "0.3s",
+                  "&:hover": {
+                    transform: "translateY(-4px)",
+                    boxShadow: "0 8px 30px rgba(255,140,0,0.2)",
+                  },
                 }}
               >
-                {t.active ? "Active ✅" : "Ticket expired ❌"}
-              </span>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 1.5,
+                  }}
+                >
+                  <Stack direction="row" alignItems="center" spacing={1.2}>
+                    <ConfirmationNumberIcon sx={{ color: "#ffb347" }} />
+                    <Typography variant="h6" sx={{ fontWeight: 800 ,color: "#ffffffff"  }}>
+                      {t.usName || "Bus Name N/A"}
+                    </Typography>
+                  </Stack>
 
-              <p><strong>Bus ID:</strong> {t.busId || "N/A"}</p>
-              <p><strong>Bus Name:</strong> {t.busName || "N/A"}</p>
-              <p><strong>User:</strong> {t.userName || "N/A"}</p>
-              <p><strong>Start:</strong> {t.start?.lat ?? "-"}, {t.start?.lng ?? "-"}</p>
-              <p><strong>Destination:</strong> {t.destination?.lat ?? "-"}, {t.destination?.lng ?? "-"}</p>
-              <p><strong>Distance:</strong> {t.distance ?? "-"} km</p>
-              <p><strong>Fare:</strong> ₹{t.amount ?? "-"}</p>
-              <p><strong>Date:</strong> {t.date ? new Date(t.date).toLocaleString() : "-"}</p>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+                  <Chip
+                    label={t.active ? "Active ✅" : "Expired ❌"}
+                    color={t.active ? "success" : "default"}
+                    size="small"
+                    sx={{
+                      bgcolor: t.active
+                        ? "rgba(60,255,100,0.15)"
+                        : "rgba(255,255,255,0.08)",
+                      color: t.active ? "#80ff80" : "#ffdca8",
+                      borderRadius: 2,
+                      fontWeight: 700,
+                    }}
+                  />
+                </Box>
+
+                <Typography variant="body2" sx={{ color: "#ffdca8" }}>
+                  <strong>Bus ID:</strong> {t.busId || "N/A"}
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#ffdca8" }}>
+                  <strong>User:</strong> {t.userName || "N/A"}
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#ffdca8" }}>
+                  <strong>Start:</strong> {t.start?.lat ?? "-"}, {t.start?.lng ?? "-"}
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#ffdca8" }}>
+                  <strong>Destination:</strong> {t.destination?.lat ?? "-"},{" "}
+                  {t.destination?.lng ?? "-"}
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#ffdca8" }}>
+                  <strong>Distance:</strong> {t.distance ?? "-"} km
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#ffdca8" }}>
+                  <strong>Fare:</strong> ₹{t.amount ?? "-"}
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#ffdca8" }}>
+                  <strong>Date:</strong>{" "}
+                  {t.date ? new Date(t.date).toLocaleString() : "-"}
+                </Typography>
+              </Paper>
+            ))}
+          </Stack>
+        )}
+      </Box>
+
+      {/* Footer */}
+      <Box className="w-full text-center py-6 mt-8 z-20 relative">
+        <Typography sx={{ color: "#804a00", fontSize: 13 }}>
+          © {new Date().getFullYear()} Ziller — Design by Senju Kirmada
+        </Typography>
+      </Box>
+    </Box>
   );
 }
-
-export default Tickets;
