@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import axios from "axios";
-import Map from "./Map";
+import Map from "./map";
 import Swal from "sweetalert2";
 import {
   Box,
