@@ -15,38 +15,59 @@ import {
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 
 function Login() {
-  const [formData, setFormData] = useState({ name: "", password: "" });
+  const [formData, setFormData] = useState({
+    name: "",
+    password: "",
+  });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!formData.name || !formData.password) {
+      alert("Please fill all fields");
+      return;
+    }
+
     setLoading(true);
+
     try {
       const res = await axios.post(
         "https://ziller-backend.onrender.com/api/auth/login",
-        formData
+        {
+          name: formData.name,
+          password: formData.password,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
 
       const { token, user } = res.data;
+
       localStorage.setItem("token", token);
       localStorage.setItem("currentUser", JSON.stringify(user));
 
       alert("Login successful!");
       navigate("/");
     } catch (err) {
-      console.error(err);
-      alert(err.response?.data?.message || "Login failed");
+      console.error("Login error:", err);
+      alert(err?.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
     }
   };
 
-  // Keyframes for gradient animation
   const keyframes = {
     "@keyframes moveGradient": {
       "0%": { backgroundPosition: "0% 50%" },
@@ -64,13 +85,13 @@ function Login() {
         justifyContent: "center",
         position: "relative",
         overflow: "hidden",
-        background: `linear-gradient(120deg, #1a0a00 0%, #2b1200 25%, #3a1700 50%, #2b1200 75%, #1a0a00 100%)`,
+        background:
+          "linear-gradient(120deg, #1a0a00 0%, #2b1200 25%, #3a1700 50%, #2b1200 75%, #1a0a00 100%)",
         backgroundSize: "200% 200%",
         animation: "moveGradient 18s ease-in-out infinite",
         ...keyframes,
       }}
     >
-      {/* subtle glowing grid overlay */}
       <Box
         sx={{
           position: "absolute",
@@ -126,6 +147,7 @@ function Login() {
           >
             Welcome Back
           </Typography>
+
           <Typography sx={{ mb: 3, color: "#ffddb0", fontSize: 14 }}>
             Login to continue your journey
           </Typography>
@@ -147,15 +169,8 @@ function Login() {
                   borderRadius: 8,
                 },
               }}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": { borderColor: "rgba(255,160,60,0.2)" },
-                  "&:hover fieldset": {
-                    borderColor: "rgba(255,160,60,0.4)",
-                  },
-                },
-              }}
             />
+
             <TextField
               label="Password"
               type="password"
@@ -171,14 +186,6 @@ function Login() {
                   color: "#fff",
                   background: "rgba(255,255,255,0.05)",
                   borderRadius: 8,
-                },
-              }}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": { borderColor: "rgba(255,160,60,0.2)" },
-                  "&:hover fieldset": {
-                    borderColor: "rgba(255,160,60,0.4)",
-                  },
                 },
               }}
             />
@@ -198,13 +205,6 @@ function Login() {
                   "linear-gradient(90deg,#ffb347,#ff7e00,#ffb347)",
                 backgroundSize: "200%",
                 color: "#1a0a00",
-                boxShadow: "0 10px 25px rgba(255,126,0,0.25)",
-                transition: "all 0.3s ease",
-                "&:hover": {
-                  backgroundPosition: "right center",
-                  transform: "translateY(-3px)",
-                  boxShadow: "0 20px 45px rgba(255,126,0,0.35)",
-                },
               }}
             >
               {loading ? (
@@ -229,13 +229,7 @@ function Login() {
             </span>
           </Typography>
 
-          <Typography
-            sx={{
-              mt: 4,
-              fontSize: 12,
-              color: "#804a00",
-            }}
-          >
+          <Typography sx={{ mt: 4, fontSize: 12, color: "#804a00" }}>
             © {new Date().getFullYear()} Ziller — Design by Senju Kirmada
           </Typography>
         </Paper>

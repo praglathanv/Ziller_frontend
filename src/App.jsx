@@ -1,40 +1,39 @@
-// src/App.js
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import Map from "./pages/map";
+
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import ProtectedRoute from "./pages/ProtectedRoutes";
+
+import BusDetail from "./pages/BusDetail";
+import Tickets from "./pages/Tickets";
+import PassPage from "./pages/PassPage";
+import About from "./pages/About";
+
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import BusCollection from "./pages/BusCollection";
 import AddAdmin from "./pages/AddAdmin";
-import Home from "./pages/Home";
-import BusDetail from "./pages/BusDetail";
-import Tickets from "./pages/Tickets";  
-import Signup from "./pages/Signup";
-import Login from "./pages/Login";
-import ProtectedRoute from "./pages/ProtectedRoutes";
 import CreateSession from "./pages/CreateSession";
-import About from "./pages/About";
-import PassPage from "./pages/PassPage";
 
 function App() {
-  const token = localStorage.getItem("token"); // check if logged in
+  const token = localStorage.getItem("token");
 
   return (
     <Router>
       <Routes>
-        {/* Home redirects to login if not logged in */}
+        {/* Home */}
         <Route
           path="/"
-          element={
-            token ? <Home /> : <Navigate to="/login" replace />
-          }
+          element={token ? <Home /> : <Navigate to="/login" replace />}
         />
 
-        {/* Public Routes */}
+        {/* Public */}
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
 
-        {/* Protected Routes */}
+        {/* Protected */}
         <Route
           path="/bus/:id"
           element={
@@ -43,6 +42,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/tickets"
           element={
@@ -52,7 +52,7 @@ function App() {
           }
         />
 
-         <Route
+        <Route
           path="/take-pass"
           element={
             <ProtectedRoute>
@@ -63,7 +63,7 @@ function App() {
 
         <Route path="/about" element={<About />} />
 
-        {/* Admin routes (you can protect later if needed) */}
+        {/* Admin */}
         <Route path="/admin" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/bus-collection" element={<BusCollection />} />
